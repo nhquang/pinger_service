@@ -47,7 +47,8 @@ namespace Pinger
                 while (!ct.IsCancellationRequested)
                 {
                     var rs = httpClient_.GetStringAsync("index.html").Result;
-                    Thread.Sleep(600000);
+                    //Thread.Sleep(600000);
+                    Thread.Sleep(200000);
                 }
             }
             catch(Exception ex)
