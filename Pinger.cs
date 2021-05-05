@@ -47,8 +47,8 @@ namespace Pinger
                 while (!ct.IsCancellationRequested)
                 {
                     var rs = httpClient_.GetStringAsync("index.html").Result;
-                    //Thread.Sleep(600000);
-                    Thread.Sleep(200000);
+                    Thread.Sleep(900000);
+                    //Thread.Sleep(120000);
                 }
             }
             catch(Exception ex)
@@ -62,8 +62,13 @@ namespace Pinger
             // TODO: Add code here to perform any tear-down necessary to stop your service.
             try
             {
-                cts_?.Cancel();
+                //stop the sleeping thread gracefully by waiting till the task status is RanToCompletion
+                cts_.Cancel();
+                while (pinger_.Status != TaskStatus.RanToCompletion) { }
+
+                pinger_.Dispose();
                 httpClient_.Dispose();
+                cts_.Dispose();
             }
             catch(Exception ex)
             {
