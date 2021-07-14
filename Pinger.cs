@@ -40,15 +40,19 @@ namespace Pinger
             }
         }
 
-        void pinger(CancellationToken ct)
+        async Task pinger(CancellationToken ct)
         {
             try
             {
                 while (!ct.IsCancellationRequested)
                 {
                     var rs = httpClient_.GetStringAsync("index.html").Result;
-                    Thread.Sleep(900000);
-                    //Thread.Sleep(120000);
+                    //Thread.Sleep(900000);
+                    //Thread.Sleep(10000);
+
+                    //when the cancellation is requested, it should cancel the delay task too, by doing this the task can be stopped immediately after the stop is hit.
+                    //If thread.sleep() is used to delay , there is no way to stop the task immediately, because it blocks the thread so we have to wait til it's awake.
+                    await Task.Delay(900000, ct);
                 }
             }
             catch(Exception ex)
@@ -62,10 +66,8 @@ namespace Pinger
             // TODO: Add code here to perform any tear-down necessary to stop your service.
             try
             {
-                //stop the sleeping thread gracefully by waiting till the task status is RanToCompletion
                 cts_.Cancel();
-                while (pinger_.Status != TaskStatus.RanToCompletion) { }
-
+                //while (TaskStatus.RanToCompletion != pinger_.Status) { }
                 pinger_.Dispose();
                 httpClient_.Dispose();
                 cts_.Dispose();
